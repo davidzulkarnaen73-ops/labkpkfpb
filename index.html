@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lab Misteri KPK & FPB</title>
+    <!-- Tailwind CSS untuk styling responsif & modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap');
+        
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f0f9ff;
+            touch-action: manipulation; /* Optimasi untuk touch screen (mencegah double tap zoom) */
+            user-select: none;
+            overflow-x: hidden;
+        }
+
+        /* Animasi Kustom */
+        @keyframes pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop { animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(-3deg); }
+            50% { transform: rotate(3deg); }
+        }
+        .animate-wiggle { animation: wiggle 1s ease-in-out infinite; }
+
+        /* Confetti Styles */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        /* Gradient Text */
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-image: linear-gradient(to right, #2563eb, #9333ea);
+        }
+
+        /* Hide scrollbar untuk elemen horizontal */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Custom Button Press Effect */
+        .btn-press {
+            transition: all 0.1s ease;
+        }
+        .btn-press:active {
+            transform: scale(0.95) translateY(4px);
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-800">
+
+    <!-- CONTAINER UTAMA -->
+    <div id="app" class="flex-grow flex flex-col w-full max-w-4xl mx-auto p-4 sm:p-6 relative">
+        
+        <!-- ==================== HOME SCREEN ==================== -->
+        <div id="screen-home" class="flex-grow flex flex-col items-center justify-center space-y-8 animate-pop">
+            <div class="text-center">
+                <div class="text-6xl mb-4 animate-wiggle">🕵️‍♂️🔍✨</div>
+                <h1 class="text-4xl md:text-5xl font-black text-gradient drop-shadow-sm mb-2">Lab Misteri <br/>KPK & FPB</h1>
+                <p class="text-lg md:text-xl text-slate-600 font-bold">Pecahkan Kasus Matematika dengan Seru!</p>
+            </div>
+            
+            <div class="flex flex-col w-full max-w-md space-y-4">
+                <button onclick="nav('screen-explore-menu')" class="btn-press bg-blue-500 hover:bg-blue-600 text-white font-bold text-2xl py-5 px-6 rounded-2xl shadow-[0_8px_0_#1d4ed8] w-full flex items-center justify-center gap-3">
+                    <span>🔬</span> Eksplorasi Konsep
+                </button>
+                <button onclick="startQuiz()" class="btn-press bg-amber-500 hover:bg-amber-600 text-white font-bold text-2xl py-5 px-6 rounded-2xl shadow-[0_8px_0_#b45309] w-full flex items-center justify-center gap-3">
+                    <span>🏆</span> Tantangan Misi
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== EXPLORE MENU ==================== -->
+        <div id="screen-explore-menu" class="hidden flex-grow flex flex-col items-center justify-center space-y-6 animate-pop">
+            <button onclick="nav('screen-home')" class="absolute top-4 left-4 p-3 bg-slate-200 rounded-full btn-press font-bold text-xl">⬅️ Kembali</button>
+            
+            <h2 class="text-3xl md:text-4xl font-black text-blue-700 text-center">Pilih Mode Eksplorasi</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl mt-8">
+                <div onclick="nav('screen-sim-kpk')" class="bg-white p-6 rounded-3xl shadow-lg border-4 border-indigo-200 cursor-pointer btn-press text-center flex flex-col items-center">
+                    <div class="text-5xl mb-4">🚦</div>
+                    <h3 class="text-2xl font-bold text-indigo-700 mb-2">Simulasi KPK</h3>
+                    <p class="text-slate-500">Mencari waktu pertemuan bersama (kelipatan).</p>
+                </div>
+                <div onclick="nav('screen-sim-fpb')" class="bg-white p-6 rounded-3xl shadow-lg border-4 border-emerald-200 cursor-pointer btn-press text-center flex flex-col items-center">
+                    <div class="text-5xl mb-4">🍎</div>
+                    <h3 class="text-2xl font-bold text-emerald-700 mb-2">Simulasi FPB</h3>
+                    <p class="text-slate-500">Membagi barang sama rata terbanyak (faktor).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== SIMULASI KPK ==================== -->
+        <div id="screen-sim-kpk" class="hidden flex-grow flex flex-col animate-pop">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="nav('screen-explore-menu')" class="p-3 bg-slate-200 rounded-full btn-press font-bold">⬅️</button>
+                <h2 class="text-2xl md:text-3xl font-black text-indigo-700">Simulasi KPK 🚦</h2>
+                <div class="w-10"></div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl shadow mb-4">
+                <p class="text-center font-bold text-slate-600 mb-2">Masukkan 2 angka (2 - 10) untuk melihat Kelipatan</p>
+                <div class="flex justify-center items-center gap-4">
+                    <input type="number" id="kpk-a" min="2" max="10" value="3" class="w-20 h-16 text-3xl text-center font-bold bg-indigo-50 border-4 border-indigo-200 rounded-xl focus:outline-none">
+                    <span class="text-2xl font-bold">&</span>
+                    <input type="number" id="kpk-b" min="2" max="10" value="4" class="w-20 h-16 text-3xl text-center font-bold bg-indigo-50 border-4 border-indigo-200 rounded-xl focus:outline-none">
+                    <button onclick="runKPK()" class="btn-press bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl shadow-[0_4px_0_#3730a3]">Cari!</button>
+                </div>
+            </div>
+
+            <div id="kpk-result" class="flex-grow bg-indigo-50 rounded-2xl border-4 border-indigo-100 p-4 overflow-y-auto">
+                <p class="text-center text-slate-400 italic">Tekan "Cari!" untuk melihat garis bilangan.</p>
+            </div>
+        </div>
+
+        <!-- ==================== SIMULASI FPB ==================== -->
+        <div id="screen-sim-fpb" class="hidden flex-grow flex flex-col animate-pop">
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="nav('screen-explore-menu')" class="p-3 bg-slate-200 rounded-full btn-press font-bold">⬅️</button>
+                <h2 class="text-2xl md:text-3xl font-black text-emerald-700">Simulasi FPB 🍎</h2>
+                <div class="w-10"></div>
+            </div>
+            
+            <div class="bg-white p-4 rounded-2xl shadow mb-4">
+                <p class="text-center font-bold text-slate-600 mb-2">Masukkan 2 angka (4 - 40) untuk mencari Faktor</p>
+                <div class="flex justify-center items-center gap-4">
+                    <input type="number" id="fpb-a" min="4" max="40" value="12" class="w-24 h-16 text-3xl text-center font-bold bg-emerald-50 border-4 border-emerald-200 rounded-xl focus:outline-none">
+                    <span class="text-2xl font-bold">&</span>
+                    <input type="number" id="fpb-b" min="4" max="40" value="18" class="w-24 h-16 text-3xl text-center font-bold bg-emerald-50 border-4 border-emerald-200 rounded-xl focus:outline-none">
+                    <button onclick="runFPB()" class="btn-press bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl shadow-[0_4px_0_#065f46]">Cari!</button>
+                </div>
+            </div>
+
+            <div id="fpb-result" class="flex-grow bg-emerald-50 rounded-2xl border-4 border-emerald-100 p-4 overflow-y-auto">
+                <p class="text-center text-slate-400 italic">Tekan "Cari!" untuk melihat pembagian faktor.</p>
+            </div>
+        </div>
+
+        <!-- ==================== TANTANGAN / KUIS ==================== -->
+        <div id="screen-quiz" class="hidden flex-grow flex flex-col animate-pop relative">
+            <div class="flex items-center justify-between mb-4 bg-white p-3 rounded-2xl shadow">
+                <button onclick="quitQuiz()" class="text-red-500 font-bold p-2 bg-red-50 rounded-xl btn-press">❌ Keluar</button>
+                <div class="flex-grow mx-4">
+                    <div class="h-4 w-full bg-slate-200 rounded-full overflow-hidden">
+                        <div id="quiz-progress" class="h-full bg-amber-500 w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+                <div class="font-black text-amber-600 text-xl"><span id="quiz-qnum">1</span>/10</div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-3xl shadow-lg border-b-8 border-amber-200 mb-6 flex-grow flex flex-col justify-center">
+                <div class="flex justify-center mb-4">
+                    <span id="quiz-icon" class="text-5xl">🤔</span>
+                </div>
+                <h3 id="quiz-question" class="text-xl md:text-2xl font-bold text-center text-slate-800 leading-snug">
+                    <!-- Pertanyaan disini -->
+                </h3>
+            </div>
+
+            <div id="quiz-options" class="grid grid-cols-1 gap-4 mb-4">
+                <!-- Pilihan Jawaban -->
+            </div>
+        </div>
+
+        <!-- ==================== HASIL KUIS ==================== -->
+        <div id="screen-result" class="hidden flex-grow flex flex-col items-center justify-center space-y-6 animate-pop">
+            <div class="text-6xl" id="result-emoji">🏆</div>
+            <h2 class="text-4xl md:text-5xl font-black text-amber-500 text-center">Misi Selesai!</h2>
+            
+            <div class="flex justify-center space-x-2 text-5xl my-4" id="result-stars">
+                <!-- Stars -->
+            </div>
+
+            <div class="bg-white p-6 rounded-3xl shadow border-4 border-slate-100 text-center w-full max-w-sm">
+                <p class="text-lg text-slate-500 font-bold mb-1">Skor Kamu</p>
+                <p class="text-5xl font-black text-blue-600" id="result-score">100</p>
+            </div>
+
+            <button onclick="nav('screen-home')" class="btn-press bg-blue-500 text-white font-bold text-2xl py-4 px-8 rounded-2xl shadow-[0_8px_0_#1d4ed8] w-full max-w-sm mt-4">
+                🏠 Menu Utama
+            </button>
+        </div>
+
+    </div>
+
+    <!-- MODAL PEMBAHASAN -->
+    <div id="modal-pembahasan" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-lg animate-pop flex flex-col max-h-[90vh]">
+            <h3 class="text-2xl font-black text-blue-600 mb-4 border-b-2 pb-2">💡 Pembahasan</h3>
+            <div id="pembahasan-content" class="text-lg font-medium text-slate-700 flex-grow overflow-y-auto space-y-3">
+                <!-- Isi Pembahasan -->
+            </div>
+            <div class="mt-6 pt-4 border-t-2">
+                <button id="btn-next-question" onclick="nextQuestion()" class="btn-press bg-amber-500 text-white font-bold text-xl py-3 px-4 rounded-xl shadow-[0_4px_0_#b45309] w-full">
+                    Lanjut Soal Berikutnya ➡️
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =======================
+        // DATA KUIS (HOTS)
+        // =======================
+        const quizData = [
+            {
+                q: "Andi berenang setiap 4 hari sekali, sedangkan Budi berenang setiap 6 hari sekali. Jika hari ini mereka berenang bersama, berapa hari lagi mereka akan berenang bersama-sama untuk kedua kalinya?",
+                type: "KPK", icon: "🏊‍♂️",
+                options: ["10 hari", "12 hari", "24 hari", "8 hari"],
+                answer: 1, // index of correct option
+                bahas: "<b>Diketahui:</b><br/>Andi = 4 hari<br/>Budi = 6 hari<br/>Kita mencari kapan bertemu lagi = <b>KPK</b>.<br/><br/><b>Faktorisasi Prima:</b><br/>4 = 2²<br/>6 = 2 × 3<br/><br/><b>KPK:</b> Ambil semua faktor dengan pangkat terbesar.<br/>KPK = 2² × 3 = 4 × 3 = <b>12</b>.<br/>Jadi mereka berenang bersama 12 hari lagi."
+            },
+            {
+                q: "Ibu memiliki 24 buah apel dan 36 buah jeruk. Ibu ingin membagikan buah-buahan tersebut ke dalam beberapa keranjang dengan jumlah dan jenis yang sama banyak. Paling banyak berapa keranjang yang dibutuhkan Ibu?",
+                type: "FPB", icon: "🧺",
+                options: ["12 keranjang", "6 keranjang", "8 keranjang", "4 keranjang"],
+                answer: 0,
+                bahas: "<b>Diketahui:</b><br/>Apel = 24<br/>Jeruk = 36<br/>Membagi sama banyak ke wadah = <b>FPB</b>.<br/><br/><b>Faktorisasi Prima:</b><br/>24 = 2³ × 3<br/>36 = 2² × 3²<br/><br/><b>FPB:</b> Ambil faktor yang SAMA dengan pangkat TERKECIL.<br/>FPB = 2² × 3 = 4 × 3 = <b>12</b>.<br/>Jadi keranjang paling banyak adalah 12."
+            },
+            {
+                q: "Lampu A berkedip setiap 8 detik dan Lampu B berkedip setiap 12 detik. Pada detik ke berapa kedua lampu tersebut akan berkedip bersama-sama untuk pertama kalinya setelah dinyalakan?",
+                type: "KPK", icon: "💡",
+                options: ["16 detik", "20 detik", "24 detik", "48 detik"],
+                answer: 2,
+                bahas: "Mencari waktu kejadian bersamaan = <b>KPK</b> dari 8 dan 12.<br/><br/>8 = 2³<br/>12 = 2² × 3<br/><br/>KPK = 2³ × 3 = 8 × 3 = <b>24</b>.<br/>Lampu berkedip bersama di detik ke-24."
+            },
+            {
+                q: "Pak guru memiliki dua potong pita dengan panjang 40 cm dan 50 cm. Ia ingin memotong pita tersebut menjadi beberapa bagian yang sama panjang. Berapa ukuran paling panjang untuk setiap potongan pita?",
+                type: "FPB", icon: "🎀",
+                options: ["5 cm", "10 cm", "20 cm", "8 cm"],
+                answer: 1,
+                bahas: "Membagi/memotong dengan ukuran sama & maksimal = <b>FPB</b> dari 40 dan 50.<br/><br/>40 = 2³ × 5<br/>50 = 2 × 5²<br/><br/>FPB = 2 × 5 = <b>10</b>.<br/>Ukuran potongan terpanjang adalah 10 cm."
+            },
+            {
+                q: "Bus jurusan A berangkat setiap 15 menit, dan Bus jurusan B berangkat setiap 20 menit dari terminal. Jika pukul 07.00 kedua bus berangkat bersamaan, berapa menit lagi mereka berangkat bersama?",
+                type: "KPK", icon: "🚌",
+                options: ["30 menit", "45 menit", "60 menit", "120 menit"],
+                answer: 2,
+                bahas: "Kejadian berulang bersamaan = <b>KPK</b> dari 15 dan 20.<br/><br/>15 = 3 × 5<br/>20 = 2² × 5<br/><br/>KPK = 2² × 3 × 5 = 4 × 3 × 5 = <b>60</b>.<br/>Bus berangkat bersama lagi 60 menit kemudian."
+            },
+            {
+                q: "Sebuah panitia baksos menyiapkan 60 buku tulis dan 90 pensil. Alat tulis ini akan dibagikan kepada anak panti asuhan sama rata. Berapa anak terbanyak yang bisa menerima bantuan tersebut?",
+                type: "FPB", icon: "📚",
+                options: ["15 anak", "20 anak", "30 anak", "45 anak"],
+                answer: 2,
+                bahas: "Membagi dua jenis barang sama rata terbanyak = <b>FPB</b> dari 60 dan 90.<br/><br/>60 = 2² × 3 × 5<br/>90 = 2 × 3² × 5<br/><br/>FPB = 2 × 3 × 5 = <b>30</b>.<br/>Bantuan diberikan ke 30 anak."
+            },
+            {
+                q: "Ronda malam pos A dilakukan setiap 6 hari, dan pos B setiap 9 hari. Jika hari ini mereka ronda bersama, kapan mereka ronda bersama lagi?",
+                type: "KPK", icon: "🔦",
+                options: ["12 hari", "15 hari", "18 hari", "36 hari"],
+                answer: 2,
+                bahas: "Bertemu kembali = <b>KPK</b> dari 6 dan 9.<br/><br/>6 = 2 × 3<br/>9 = 3²<br/><br/>KPK = 2 × 3² = 2 × 9 = <b>18</b>.<br/>Mereka akan ronda bersama 18 hari lagi."
+            },
+            {
+                q: "Seorang petani memanen 28 buah melon dan 42 buah semangka. Ia akan menaruh buah ke dalam keranjang dengan jumlah sama rata. Berapa keranjang paling banyak yang bisa dibuat?",
+                type: "FPB", icon: "🍉",
+                options: ["6 keranjang", "7 keranjang", "12 keranjang", "14 keranjang"],
+                answer: 3,
+                bahas: "Membagi sama rata ke wadah = <b>FPB</b> dari 28 dan 42.<br/><br/>28 = 2² × 7<br/>42 = 2 × 3 × 7<br/><br/>FPB = 2 × 7 = <b>14</b>.<br/>Keranjang terbanyak yang bisa dibuat adalah 14."
+            },
+            {
+                q: "Siti meminum obat A setiap 6 jam dan obat B setiap 8 jam. Jika jam 12 siang ia minum kedua obat bersamaan, setelah berapa jam ia minum keduanya bersamaan lagi?",
+                type: "KPK", icon: "💊",
+                options: ["12 jam", "18 jam", "24 jam", "48 jam"],
+                answer: 2,
+                bahas: "Bersamaan kembali = <b>KPK</b> dari 6 dan 8.<br/><br/>6 = 2 × 3<br/>8 = 2³<br/><br/>KPK = 2³ × 3 = 8 × 3 = <b>24</b>.<br/>Siti minum keduanya bersamaan 24 jam kemudian."
+            },
+            {
+                q: "Rina ingin membuat parsel berisi 45 buah apel dan 75 buah jeruk. Setiap parsel harus berisi apel dan jeruk sama banyak. Berapa jumlah parsel terbanyak yang dapat Rina buat?",
+                type: "FPB", icon: "🎁",
+                options: ["15 parsel", "5 parsel", "25 parsel", "9 parsel"],
+                answer: 0,
+                bahas: "Membagi parsel sama banyak = <b>FPB</b> dari 45 dan 75.<br/><br/>45 = 3² × 5<br/>75 = 3 × 5²<br/><br/>FPB = 3 × 5 = <b>15</b>.<br/>Jumlah parsel terbanyak adalah 15."
+            }
+        ];
+
+        // =======================
+        // STATE MANAGEMENT
+        // =======================
+        let currentScreen = 'screen-home';
+        let quizState = {
+            questions: [],
+            currentIndex: 0,
+            score: 0
+        };
+
+        // Audio Context for Offline Sound Synthesis
+        let audioCtx;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                if (type === 'correct') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    oscillator.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    oscillator.type = 'sawtooth';
+                    oscillator.frequency.setValueAtTime(300, audioCtx.currentTime); 
+                    oscillator.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.2); 
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'pop') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.1);
+                }
+            } catch(e) { console.log("Audio not supported"); }
+        }
+
+        // =======================
+        // NAVIGATION
+        // =======================
+        function nav(screenId) {
+            playSound('pop');
+            document.getElementById(currentScreen).classList.add('hidden');
+            document.getElementById(screenId).classList.remove('hidden');
+            currentScreen = screenId;
+        }
+
+        // =======================
+        // SIMULASI KPK
+        // =======================
+        function runKPK() {
+            playSound('pop');
+            const a = parseInt(document.getElementById('kpk-a').value);
+            const b = parseInt(document.getElementById('kpk-b').value);
+            const container = document.getElementById('kpk-result');
+            container.innerHTML = '';
+
+            if (isNaN(a) || isNaN(b) || a < 2 || b < 2 || a > 10 || b > 10) {
+                container.innerHTML = `<p class="text-red-500 font-bold text-center">Masukkan angka antara 2 sampai 10.</p>`;
+                return;
+            }
+
+            const max = Math.min(a * b * 2, 50); // Batasi visualisasi sampai 50
+            let kpk = 0;
+
+            const grid = document.createElement('div');
+            grid.className = 'grid grid-cols-5 sm:grid-cols-10 gap-2';
+
+            for (let i = 1; i <= max; i++) {
+                const box = document.createElement('div');
+                box.className = 'h-12 flex items-center justify-center font-bold rounded-lg border-2 border-transparent bg-white shadow-sm transition-all duration-300 relative';
+                box.innerText = i;
+
+                let isA = i % a === 0;
+                let isB = i % b === 0;
+
+                if (isA && isB) {
+                    if (kpk === 0) kpk = i;
+                    box.className = 'h-12 flex items-center justify-center font-black rounded-lg bg-indigo-600 text-white shadow-md animate-bounce ring-4 ring-indigo-300 z-10';
+                    box.innerHTML = `${i} <span class="absolute -top-2 -right-2 text-xs bg-yellow-400 text-black px-1 rounded">KPK!</span>`;
+                } else if (isA) {
+                    box.classList.add('ring-2', 'ring-blue-400', 'bg-blue-50', 'text-blue-700');
+                } else if (isB) {
+                    box.classList.add('ring-2', 'ring-pink-400', 'bg-pink-50', 'text-pink-700');
+                } else {
+                    box.classList.add('text-slate-400');
+                }
+                grid.appendChild(box);
+            }
+
+            const ket = document.createElement('div');
+            ket.className = 'mt-4 bg-white p-4 rounded-xl shadow-sm text-sm font-bold text-slate-700 space-y-2';
+            ket.innerHTML = `
+                <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-50 ring-2 ring-blue-400 rounded"></div> Kelipatan ${a}</div>
+                <div class="flex items-center gap-2"><div class="w-4 h-4 bg-pink-50 ring-2 ring-pink-400 rounded"></div> Kelipatan ${b}</div>
+                <div class="flex items-center gap-2"><div class="w-4 h-4 bg-indigo-600 rounded"></div> Pertemuan pertama (KPK) = <span class="text-indigo-600 text-xl">${kpk}</span></div>
+            `;
+
+            container.appendChild(grid);
+            container.appendChild(ket);
+        }
+
+        // =======================
+        // SIMULASI FPB
+        // =======================
+        function runFPB() {
+            playSound('pop');
+            const a = parseInt(document.getElementById('fpb-a').value);
+            const b = parseInt(document.getElementById('fpb-b').value);
+            const container = document.getElementById('fpb-result');
+            container.innerHTML = '';
+
+            if (isNaN(a) || isNaN(b) || a < 2 || b < 2 || a > 50 || b > 50) {
+                container.innerHTML = `<p class="text-red-500 font-bold text-center">Masukkan angka antara 2 sampai 50.</p>`;
+                return;
+            }
+
+            const getFactors = (num) => {
+                let factors = [];
+                for(let i=1; i<=num; i++) {
+                    if(num % i === 0) factors.push(i);
+                }
+                return factors;
+            };
+
+            const fA = getFactors(a);
+            const fB = getFactors(b);
+            const common = fA.filter(val => fB.includes(val));
+            const fpb = Math.max(...common);
+
+            const renderFactors = (num, factors, commonFactors, maxFactor) => {
+                let html = `<div class="mb-4"><div class="font-bold text-emerald-700 mb-2">Faktor dari ${num}:</div><div class="flex flex-wrap gap-2">`;
+                factors.forEach(f => {
+                    let style = 'bg-white text-slate-600 border-2 border-slate-200';
+                    if (f === maxFactor) {
+                        style = 'bg-yellow-400 text-yellow-900 border-2 border-yellow-500 font-black animate-pulse ring-4 ring-yellow-200';
+                    } else if (commonFactors.includes(f)) {
+                        style = 'bg-emerald-100 text-emerald-800 border-2 border-emerald-400 font-bold';
+                    }
+                    let badge = f === maxFactor ? `<span class="absolute -top-2 -right-2 text-[10px] bg-red-500 text-white px-1 rounded-full">FPB!</span>` : '';
+                    html += `<div class="w-12 h-12 flex items-center justify-center rounded-xl shadow-sm relative ${style}">${f}${badge}</div>`;
+                });
+                html += `</div></div>`;
+                return html;
+            };
+
+            container.innerHTML += renderFactors(a, fA, common, fpb);
+            container.innerHTML += renderFactors(b, fB, common, fpb);
+
+            const ket = document.createElement('div');
+            ket.className = 'mt-4 bg-white p-4 rounded-xl shadow-sm text-sm font-bold text-slate-700 space-y-2';
+            ket.innerHTML = `
+                <div class="flex items-center gap-2"><div class="w-4 h-4 bg-emerald-100 border-2 border-emerald-400 rounded"></div> Faktor yang sama (Persekutuan): ${common.join(', ')}</div>
+                <div class="flex items-center gap-2 mt-2"><div class="w-4 h-4 bg-yellow-400 rounded"></div> Faktor yang sama paling BESAAR (FPB) = <span class="text-emerald-700 text-xl">${fpb}</span></div>
+            `;
+            container.appendChild(ket);
+        }
+
+        // =======================
+        // LOGIKA KUIS
+        // =======================
+        function startQuiz() {
+            // Shuffle & pick 10 questions
+            let shuffled = [...quizData].sort(() => 0.5 - Math.random());
+            quizState.questions = shuffled.slice(0, 10);
+            quizState.currentIndex = 0;
+            quizState.score = 0;
+            
+            nav('screen-quiz');
+            renderQuestion();
+        }
+
+        function quitQuiz() {
+            if(confirm("Yakin ingin keluar dari misi? Skor tidak akan disimpan.")) {
+                nav('screen-home');
+            }
+        }
+
+        function renderQuestion() {
+            const qData = quizState.questions[quizState.currentIndex];
+            document.getElementById('quiz-qnum').innerText = quizState.currentIndex + 1;
+            document.getElementById('quiz-progress').style.width = `${((quizState.currentIndex) / 10) * 100}%`;
+            
+            document.getElementById('quiz-icon').innerText = qData.icon;
+            document.getElementById('quiz-question').innerText = qData.q;
+            
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+            
+            qData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-press w-full text-left bg-white border-4 border-slate-200 hover:border-amber-400 p-4 rounded-2xl shadow-sm text-lg font-bold text-slate-700 flex items-center justify-between transition-colors';
+                btn.innerHTML = `<span>${opt}</span> <div class="w-6 h-6 rounded-full border-2 border-slate-300"></div>`;
+                btn.onclick = () => handleAnswer(index, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement) {
+            const qData = quizState.questions[quizState.currentIndex];
+            const isCorrect = selectedIndex === qData.answer;
+            
+            // Disable all buttons
+            const allBtns = document.getElementById('quiz-options').querySelectorAll('button');
+            allBtns.forEach(b => b.onclick = null);
+
+            const radio = btnElement.querySelector('div');
+
+            if (isCorrect) {
+                quizState.score += 10;
+                playSound('correct');
+                fireConfetti();
+                btnElement.classList.replace('border-slate-200', 'border-green-500');
+                btnElement.classList.replace('hover:border-amber-400', 'bg-green-50');
+                radio.classList.replace('border-slate-300', 'bg-green-500');
+                radio.classList.replace('border-2', 'border-0');
+                radio.innerHTML = '<span class="text-white text-sm flex justify-center items-center h-full">✓</span>';
+            } else {
+                playSound('wrong');
+                btnElement.classList.replace('border-slate-200', 'border-red-500');
+                btnElement.classList.replace('hover:border-amber-400', 'bg-red-50');
+                radio.classList.replace('border-slate-300', 'bg-red-500');
+                radio.classList.replace('border-2', 'border-0');
+                radio.innerHTML = '<span class="text-white text-sm flex justify-center items-center h-full">✕</span>';
+                
+                // Highlight correct answer
+                const correctBtn = allBtns[qData.answer];
+                correctBtn.classList.replace('border-slate-200', 'border-green-500');
+                correctBtn.querySelector('div').classList.add('bg-green-500', 'border-0');
+                correctBtn.querySelector('div').innerHTML = '<span class="text-white text-sm flex justify-center items-center h-full">✓</span>';
+            }
+
+            // Show Pembahasan Modal after small delay
+            setTimeout(() => {
+                showPembahasan(isCorrect, qData.bahas);
+            }, 800);
+        }
+
+        function showPembahasan(isCorrect, textBahas) {
+            const modal = document.getElementById('modal-pembahasan');
+            const content = document.getElementById('pembahasan-content');
+            
+            let header = isCorrect ? 
+                `<div class="text-green-600 text-xl font-black mb-2 flex items-center gap-2"><span>✅</span> Tepat Sekali!</div>` : 
+                `<div class="text-red-500 text-xl font-black mb-2 flex items-center gap-2"><span>❌</span> Kurang Tepat!</div>`;
+                
+            content.innerHTML = header + textBahas;
+            
+            // Check if last question
+            const btnNext = document.getElementById('btn-next-question');
+            if (quizState.currentIndex === 9) {
+                btnNext.innerText = "Lihat Hasil Akhir 🏆";
+                btnNext.classList.replace('bg-amber-500', 'bg-blue-600');
+                btnNext.classList.replace('shadow-[0_4px_0_#b45309]', 'shadow-[0_4px_0_#1d4ed8]');
+            } else {
+                btnNext.innerText = "Lanjut Soal Berikutnya ➡️";
+                btnNext.classList.replace('bg-blue-600', 'bg-amber-500');
+                btnNext.classList.replace('shadow-[0_4px_0_#1d4ed8]', 'shadow-[0_4px_0_#b45309]');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            playSound('pop');
+            document.getElementById('modal-pembahasan').classList.add('hidden');
+            
+            if (quizState.currentIndex < 9) {
+                quizState.currentIndex++;
+                renderQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz-progress').style.width = '100%';
+            nav('screen-result');
+            
+            const scoreDisplay = document.getElementById('result-score');
+            scoreDisplay.innerText = quizState.score;
+            
+            const starsContainer = document.getElementById('result-stars');
+            let starsHtml = '';
+            let msg = '';
+            let emoji = '';
+
+            if (quizState.score >= 80) {
+                starsHtml = '⭐⭐⭐';
+                msg = 'Luar Biasa! Detektif Matematika Sejati!';
+                emoji = '🏆';
+                fireConfetti(100);
+                setTimeout(()=>fireConfetti(100), 500);
+            } else if (quizState.score >= 50) {
+                starsHtml = '⭐⭐<span class="opacity-30 grayscale">⭐</span>';
+                msg = 'Kerja Bagus! Terus Berlatih!';
+                emoji = '👍';
+                fireConfetti(50);
+            } else {
+                starsHtml = '⭐<span class="opacity-30 grayscale">⭐⭐</span>';
+                msg = 'Jangan Menyerah, Mari Belajar Lagi!';
+                emoji = '💪';
+            }
+
+            starsContainer.innerHTML = starsHtml;
+            document.getElementById('result-emoji').innerText = emoji;
+            // Optionally set msg to a DOM element if created
+        }
+
+        // =======================
+        // CONFETTI SYSTEM (DOM Based for Offline Support)
+        // =======================
+        function fireConfetti(amount = 40) {
+            const colors = ['#fce18a', '#ff726d', '#b48def', '#f4306d', '#42A5F5', '#66BB6A'];
+            for (let i = 0; i < amount; i++) {
+                createParticle(colors[Math.floor(Math.random() * colors.length)]);
+            }
+        }
+
+        function createParticle(color) {
+            const particle = document.createElement('div');
+            particle.classList.add('confetti');
+            particle.style.backgroundColor = color;
+            
+            // Random start position (center-ish screen)
+            const startX = window.innerWidth / 2;
+            const startY = window.innerHeight / 2;
+            
+            particle.style.left = startX + 'px';
+            particle.style.top = startY + 'px';
+            
+            // Random direction and velocity
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = 5 + Math.random() * 10;
+            let vx = Math.cos(angle) * velocity;
+            let vy = Math.sin(angle) * velocity - 10; // bias upward
+            
+            document.body.appendChild(particle);
+            
+            let tick = 0;
+            function animateParticle() {
+                tick++;
+                vy += 0.5; // gravity
+                vx *= 0.99; // friction
+                
+                let currentLeft = parseFloat(particle.style.left);
+                let currentTop = parseFloat(particle.style.top);
+                
+                particle.style.left = (currentLeft + vx) + 'px';
+                particle.style.top = (currentTop + vy) + 'px';
+                particle.style.transform = `rotate(${tick * 10}deg)`;
+                
+                if (currentTop < window.innerHeight && tick < 100) {
+                    requestAnimationFrame(animateParticle);
+                } else {
+                    particle.remove();
+                }
+            }
+            requestAnimationFrame(animateParticle);
+        }
+    </script>
+</body>
+</html>
